@@ -1,25 +1,31 @@
-require("dotenv").config();
-const express = require("express");
-const { MongoClient } = require("mongodb");
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-const client = new MongoClient(process.env.MONGO_URI);
 
-app.get("/", (req, res) => {
-  res.send("GalaxyDoom backend online");
+// Abilita CORS per tutte le origini
+app.use(cors());
+
+// Middleware
+app.use(express.json());
+
+// Connessione a MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('Connesso a MongoDB'))
+.catch(err => console.error('Errore di connessione a MongoDB:', err));
+
+// Esempio di endpoint
+app.get('/api/player', (req, res) => {
+  res.json({ message: 'Collegamento al backend riuscito!' });
 });
 
-app.get("/ping", async (req, res) => {
-  try {
-    await client.connect();
-    const db = client.db("Galaxydoom");
-    res.send("MongoDB connected!");
-  } catch (e) {
-    res.status(500).send("MongoDB connection failed");
-  }
-});
-
+// Avvio server
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
